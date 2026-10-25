@@ -1,0 +1,50 @@
+{
+  "name": "codeshift",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI code converter that runs both programs and shows you whether they behave the same.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Suraj64x/CodeShift.git"
+  },
+  "keywords": [
+    "code-converter",
+    "transpiler",
+    "ai",
+    "claude",
+    "nextjs",
+    "pyodide",
+    "sandbox",
+    "verification"
+  ],
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "check": "node lib/report.check.ts && node lib/languages.check.ts && node lib/play.check.ts && node lib/js-exec-core.check.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.117.1",
+    "@monaco-editor/react": "^4.7.0",
+    "framer-motion": "^13.1.0",
+    "lucide-react": "^1.32.0",
+    "next": "16.3.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.1",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
