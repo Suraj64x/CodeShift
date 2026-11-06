@@ -384,8 +384,9 @@ export async function* runPipeline(
     // No reference output to verify against — skip the fix loop entirely.
     yield doneEvent(targetCode, notes, {
       status: "partial",
-      reason:
-        "The source program exits with an error, so there is no reference output to verify against.",
+      reason: `The source program ${
+        sourceRun.timedOut ? "timed out" : "exits with an error"
+      }, so there is no reference output to verify against.`,
       sourceRun,
       targetRun,
       fixAttempts: 0,
