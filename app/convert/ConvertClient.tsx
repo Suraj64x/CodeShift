@@ -36,7 +36,7 @@ import {
   getSettingsSnapshot,
   subscribeSettings,
 } from "@/lib/client/settings";
-import { getLanguage, isGraphical, isPlayable, LANGUAGES } from "@/lib/languages";
+import { getLanguage, isGraphical, isLanguageId, isPlayable, LANGUAGES } from "@/lib/languages";
 import {
   getProviderInfo,
   type Capabilities,
@@ -53,6 +53,23 @@ type RunSide = "source" | "target";
 function isPristine(code: string): boolean {
   const trimmed = code.trim();
   return trimmed === "" || LANGUAGES.some((lang) => lang.sample.trim() === trimmed);
+}
+
+// The unconverted draft survives leaving the page (e.g. "Add it in Settings")
+// for the rest of the tab's session.
+const DRAFT_KEY = "codeshift:draft";
+type Draft = { sourceLanguage: LanguageId; targetLanguage: LanguageId; sourceCode: string };
+
+function readDraft(): Draft | null {
+  try {
+    const d = JSON.parse(sessionStorage.getItem(DRAFT_KEY) ?? "null") as Partial<Draft> | null;
+    if (d && isLanguageId(d.sourceLanguage) && isLanguageId(d.targetLanguage) && typeof d.sourceCode === "string") {
+      return d as Draft;
+    }
+  } catch {
+    // Unavailable or corrupt — start fresh.
+  }
+  return null;
 }
 
 // Platform detection as a client-only external-store snapshot: the server
@@ -170,17 +187,29 @@ export default function ConvertClient() {
     /* eslint-enable react-hooks/set-state-in-effect */
   }, [restoreId]);
 
-  // Open with the default language pair from Settings (unless restoring history).
+  // Open with this tab's draft, else the default pair from Settings and its
+  // sample (unless restoring history).
   useEffect(() => {
     if (restoreId) return;
     const { defaultSource, defaultTarget } = getSettingsSnapshot();
+    const draft = readDraft();
     // Post-mount for the same reason as the restore effect above.
     /* eslint-disable react-hooks/set-state-in-effect */
-    setSourceLanguage(defaultSource);
-    setTargetLanguage(defaultTarget);
+    setSourceLanguage(draft?.sourceLanguage ?? defaultSource);
+    setTargetLanguage(draft?.targetLanguage ?? defaultTarget);
+    setSourceCode(draft?.sourceCode ?? getLanguage(defaultSource).sample);
     /* eslint-enable react-hooks/set-state-in-effect */
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on mount
   }, []);
+
+  // Declared after the load above so the first write can't clobber the draft.
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ sourceLanguage, targetLanguage, sourceCode }));
+    } catch {
+      // best-effort
+    }
+  }, [sourceLanguage, targetLanguage, sourceCode]);
 
   // Warm browser runtimes (e.g. start the Pyodide download) for languages that
   // would actually execute in the browser.
@@ -552,6 +581,8 @@ export default function ConvertClient() {
             language={getLanguage(sourceLanguage)}
             value={sourceCode}
             onChange={handleSourceChange}
+            // Locked mid-conversion so the verdict always matches this code.
+            readOnly={state === "converting"}
             prefs={settings}
             onLoadSample={() =>
               handleSourceChange(getLanguage(sourceLanguage).sample)
@@ -629,6 +660,7 @@ export default function ConvertClient() {
         onRetryCapabilities={retryCapabilities}
         canConvert={canConvert}
         onConvert={handleConvert}
+        onStop={resetOutcome}
       />
     </div>
   );
