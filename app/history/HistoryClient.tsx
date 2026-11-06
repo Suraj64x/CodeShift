@@ -127,15 +127,20 @@ export default function HistoryClient() {
                   >
                     {status.glyph}
                   </span>
-                  <span className="flex min-w-0 flex-1 items-center gap-2 truncate text-[15px]">
-                    <BrandIcon id={record.sourceLanguage} size={16} />
-                    <span className="text-ink">
-                      {getLanguage(record.sourceLanguage).name}
+                  <span className="flex min-w-0 flex-1 flex-col gap-1">
+                    <span className="flex min-w-0 items-center gap-2 truncate text-[15px]">
+                      <BrandIcon id={record.sourceLanguage} size={16} />
+                      <span className="text-ink">
+                        {getLanguage(record.sourceLanguage).name}
+                      </span>
+                      <span className="text-ink-mute">→</span>
+                      <BrandIcon id={record.targetLanguage} size={16} />
+                      <span className="truncate text-ink">
+                        {getLanguage(record.targetLanguage).name}
+                      </span>
                     </span>
-                    <span className="text-ink-mute">→</span>
-                    <BrandIcon id={record.targetLanguage} size={16} />
-                    <span className="truncate text-ink">
-                      {getLanguage(record.targetLanguage).name}
+                    <span className="truncate font-mono text-[12.5px] text-ink-mute">
+                      {record.sourceCode.split("\n").find((line) => line.trim())?.trim()}
                     </span>
                   </span>
                   <span className="hidden shrink-0 text-[13.5px] text-ink-dim sm:block">
