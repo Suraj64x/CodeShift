@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, Square } from "lucide-react";
 import { Button, Spinner, cx } from "@/components/ui";
 import type { Capabilities, LanguageId, PipelineStageId } from "@/lib/types";
 
@@ -127,6 +127,7 @@ type ConvertBarProps = {
   onRetryCapabilities: () => void;
   canConvert: boolean;
   onConvert: () => void;
+  onStop: () => void;
 };
 
 export default function ConvertBar({
@@ -140,6 +141,7 @@ export default function ConvertBar({
   onRetryCapabilities,
   canConvert,
   onConvert,
+  onStop,
 }: ConvertBarProps) {
   return (
     <div className="flex h-16 shrink-0 items-center justify-between gap-4 border-t border-line px-5">
@@ -185,10 +187,17 @@ export default function ConvertBar({
         ) : null}
       </div>
 
-      <Button variant="primary" onClick={onConvert} disabled={!canConvert}>
-        Convert
-        <ArrowRight size={16} aria-hidden="true" />
-      </Button>
+      {state === "converting" ? (
+        <Button variant="ghost" onClick={onStop}>
+          <Square size={12} className="fill-current" aria-hidden="true" />
+          Stop
+        </Button>
+      ) : (
+        <Button variant="primary" onClick={onConvert} disabled={!canConvert}>
+          Convert
+          <ArrowRight size={16} aria-hidden="true" />
+        </Button>
+      )}
     </div>
   );
 }
