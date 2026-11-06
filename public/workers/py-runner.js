@@ -96,7 +96,7 @@ async function installImports(pyodide, code, id) {
       },
       errorCallback: function () {},
     });
-  } catch (error) {
+  } catch {
     // Unparseable code or a failed download: run anyway and let Python report.
   } finally {
     self.fetch = blockedFetch;
@@ -177,7 +177,7 @@ self.onmessage = async function (event) {
   } finally {
     try {
       namespace.destroy();
-    } catch (ignored) {
+    } catch {
       // Already gone with a crashed interpreter.
     }
   }
